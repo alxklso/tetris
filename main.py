@@ -58,7 +58,7 @@ def out_of_bounds():
 
 ########## DRIVER CODE ##########
 while True:
-    dx = 0
+    dx, rotate = 0, False
     game_screen.fill(pygame.Color("Black"))
 
     # EVENT HANDLER
@@ -72,6 +72,8 @@ while True:
                 dx = 1
             elif event.key == pygame.K_DOWN:
                 anim_limit = 100
+            elif event.key == pygame.K_UP:
+                rotate = True
 
     # Move x
     shape_old = deepcopy(shape)
@@ -94,6 +96,21 @@ while True:
                         "white")
                 shape = deepcopy(choice(shapes))
                 anim_limit = 2000
+                break
+
+    # Rotate CW
+    center = shape[0]
+    shape_old = deepcopy(shape)
+    if rotate:
+        for i in range(4):
+            # Rotate all four block constituents
+            x = shape[i].y - center.y
+            y = shape[i].x - center.x
+            shape[i].x = center.x - x
+            shape[i].y = center.y + y
+
+            if not out_of_bounds():
+                shape = deepcopy(shape_old)
                 break
 
     # Draw grid
