@@ -1,5 +1,11 @@
+"""
+Basic Tetris game using pygame.
+"""
+
 import pygame
 from copy import deepcopy
+from random import choice, randrange
+
 
 # READ ONLY
 WIDTH, HEIGHT = 10, 20
@@ -25,9 +31,10 @@ shapes_coordinates = [[(-1, 0), (-2, 0), (0, 0), (1, 0)],
 shapes = [[pygame.Rect(x+WIDTH // 2, y+1, 1, 1) for x, y in coordinate_set]
           for coordinate_set in shapes_coordinates]
 shapes_rect = pygame.Rect(0, 0, TILE_SIZE-2, TILE_SIZE-2)
+field = [[0 for i in range(WIDTH)] for j in range(HEIGHT)]
 
 anim_count, anim_speed, anim_limit = 0, 60, 2000
-shape = deepcopy(shapes[3])
+shape = deepcopy(choice(shapes))
 
 ########## HELPER FUNCTIONS START ##########
 
@@ -41,6 +48,8 @@ def out_of_bounds():
     - True = out of bounds
     """
     if shape[i].x < 0 or shape[i].x > WIDTH - 1:
+        return False
+    elif shape[i].y > HEIGHT - 1 or field[shape[i].y][shape[i].x]:
         return False
     return True
 
@@ -80,7 +89,10 @@ while True:
         for i in range(4):
             shape[i].y += 1
             if not out_of_bounds():
-                shape = deepcopy(shape_old)
+                for i in range(4):
+                    field[shape_old[i].y][shape_old[i].x] = pygame.Color(
+                        "white")
+                shape = deepcopy(choice(shapes))
                 anim_limit = 2000
                 break
 
@@ -91,7 +103,14 @@ while True:
     for i in range(4):  # All shapes consist of 4 tiles
         shapes_rect.x = shape[i].x * TILE_SIZE
         shapes_rect.y = shape[i].y * TILE_SIZE
-        pygame.draw.rect(game_screen, pygame.Color("red"), shapes_rect)
+        pygame.draw.rect(game_screen, pygame.Color("white"), shapes_rect)
+
+    # Draw field
+    for y, r in enumerate(field):
+        for x, c in enumerate(r):
+            if c:
+                shapes_rect.x, shapes_rect.y = x * TILE_SIZE, y * TILE_SIZE
+                pygame.draw.rect(game_screen, c, shapes_rect)
 
     pygame.display.flip()
     clock.tick(FPS)
