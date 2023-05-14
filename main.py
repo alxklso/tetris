@@ -113,6 +113,19 @@ while True:
                 shape = deepcopy(shape_old)
                 break
 
+    # Check filled lines
+    line = HEIGHT - 1
+    for row in range(HEIGHT - 1, -1, -1):
+        count = 0
+        for i in range(WIDTH):
+            if field[row][i]:
+                count += 1
+
+            field[line][i] = field[row][i]
+
+        if count < WIDTH:
+            line -= 1
+
     # Draw grid
     [pygame.draw.rect(game_screen, (40, 40, 40), i_rect, 1) for i_rect in grid]
 
