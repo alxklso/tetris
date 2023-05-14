@@ -1,4 +1,5 @@
 import pygame
+from copy import deepcopy
 
 # READ ONLY
 WIDTH, HEIGHT = 10, 20
@@ -24,16 +25,64 @@ shapes_coordinates = [[(-1, 0), (-2, 0), (0, 0), (1, 0)],
 shapes = [[pygame.Rect(x+WIDTH // 2, y+1, 1, 1) for x, y in coordinate_set]
           for coordinate_set in shapes_coordinates]
 shapes_rect = pygame.Rect(0, 0, TILE_SIZE-2, TILE_SIZE-2)
-field = [[0 for i in range(WIDTH)] for j in range(HEIGHT)]
 
-shape = shapes[0]
+anim_count, anim_speed, anim_limit = 0, 60, 2000
+shape = deepcopy(shapes[3])
 
+########## HELPER FUNCTIONS START ##########
+
+
+def out_of_bounds():
+    """
+    Function to make sure shape doesn't go out of bounds.
+
+    Returns:
+    - False = in bounds
+    - True = out of bounds
+    """
+    if shape[i].x < 0 or shape[i].x > WIDTH - 1:
+        return False
+    return True
+
+########## HELPER FUNCTIONS END ##########
+
+
+########## DRIVER CODE ##########
 while True:
+    dx = 0
     game_screen.fill(pygame.Color("Black"))
 
+    # EVENT HANDLER
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             exit()
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_LEFT:
+                dx = -1
+            elif event.key == pygame.K_RIGHT:
+                dx = 1
+            elif event.key == pygame.K_DOWN:
+                anim_limit = 100
+
+    # Move x
+    shape_old = deepcopy(shape)
+    for i in range(4):
+        shape[i].x += dx
+        if not out_of_bounds():
+            shape = deepcopy(shape_old)
+            break
+
+    # Move y
+    anim_count += anim_speed
+    if anim_count > anim_limit:
+        anim_count = 0
+        shape_old = deepcopy(shape)
+        for i in range(4):
+            shape[i].y += 1
+            if not out_of_bounds():
+                shape = deepcopy(shape_old)
+                anim_limit = 2000
+                break
 
     # Draw grid
     [pygame.draw.rect(game_screen, (40, 40, 40), i_rect, 1) for i_rect in grid]
