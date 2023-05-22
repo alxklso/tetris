@@ -1,5 +1,8 @@
 """
 Basic Tetris game using pygame.
+Author: Alex Kelso 
+
+Python Version: 3.9.10
 """
 
 import pygame
@@ -7,7 +10,36 @@ from copy import deepcopy
 from random import choice, randrange
 
 
-# READ ONLY
+########## HELPER FUNCTIONS START ##########
+
+
+def out_of_bounds():
+    """
+    Check to make sure shape doesn't go out of bounds.
+
+    Returns:
+    - False = in bounds
+    - True = out of bounds
+    """
+    if shape[i].x < 0 or shape[i].x > WIDTH - 1:
+        return False
+    elif shape[i].y > HEIGHT - 1 or field[shape[i].y][shape[i].x]:
+        return False
+    return True
+
+
+def get_random_color():
+    """
+    Get random color for next shape that appears.
+
+    Returns: 
+    - Random color code 3-tuple
+    """
+    return (randrange(30, 256), randrange(30, 256), randrange(30, 256))
+########## HELPER FUNCTIONS END ##########
+
+
+########## GAME SETUP START ##########
 WIDTH, HEIGHT = 10, 20
 TILE_SIZE = 45
 GAME_RES = WIDTH*TILE_SIZE, HEIGHT*TILE_SIZE
@@ -19,6 +51,8 @@ sc = pygame.display.set_mode(RES)
 game_screen = pygame.Surface(GAME_RES)
 clock = pygame.time.Clock()
 
+
+# Creating shape sizes and location
 grid = [pygame.Rect(x*TILE_SIZE, y*TILE_SIZE, TILE_SIZE, TILE_SIZE)
         for x in range(WIDTH) for y in range(HEIGHT)]
 
@@ -38,30 +72,14 @@ field = [[0 for i in range(WIDTH)] for j in range(HEIGHT)]
 anim_count, anim_speed, anim_limit = 0, 60, 2000
 shape = deepcopy(choice(shapes))
 
+# Background images
 background = pygame.image.load("img/bg.jpg").convert()
 game_background = pygame.image.load("img/game_bg.jpg").convert()
-
-########## HELPER FUNCTIONS START ##########
-
-
-def out_of_bounds():
-    """
-    Function to make sure shape doesn't go out of bounds.
-
-    Returns:
-    - False = in bounds
-    - True = out of bounds
-    """
-    if shape[i].x < 0 or shape[i].x > WIDTH - 1:
-        return False
-    elif shape[i].y > HEIGHT - 1 or field[shape[i].y][shape[i].x]:
-        return False
-    return True
-
-########## HELPER FUNCTIONS END ##########
+random_color = get_random_color()
+########## GAME SETUP STOP ##########
 
 
-########## DRIVER CODE ##########
+########## MAIN START ##########
 while True:
     dx, rotate = 0, False
     sc.blit(background, (0, 0))
@@ -99,8 +117,8 @@ while True:
             shape[i].y += 1
             if not out_of_bounds():
                 for i in range(4):
-                    field[shape_old[i].y][shape_old[i].x] = pygame.Color(
-                        "white")
+                    field[shape_old[i].y][shape_old[i].x] = random_color
+                random_color = get_random_color()
                 shape = deepcopy(choice(shapes))
                 anim_limit = 2000
                 break
@@ -140,7 +158,7 @@ while True:
     for i in range(4):  # All shapes consist of 4 tiles
         shapes_rect.x = shape[i].x * TILE_SIZE
         shapes_rect.y = shape[i].y * TILE_SIZE
-        pygame.draw.rect(game_screen, pygame.Color("white"), shapes_rect)
+        pygame.draw.rect(game_screen, random_color, shapes_rect)
 
     # Draw field
     for y, r in enumerate(field):
