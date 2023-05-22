@@ -11,10 +11,12 @@ from random import choice, randrange
 WIDTH, HEIGHT = 10, 20
 TILE_SIZE = 45
 GAME_RES = WIDTH*TILE_SIZE, HEIGHT*TILE_SIZE
+RES = 750, 940
 FPS = 60  # Refresh rate
 
 pygame.init()
-game_screen = pygame.display.set_mode(GAME_RES)
+sc = pygame.display.set_mode(RES)
+game_screen = pygame.Surface(GAME_RES)
 clock = pygame.time.Clock()
 
 grid = [pygame.Rect(x*TILE_SIZE, y*TILE_SIZE, TILE_SIZE, TILE_SIZE)
@@ -35,6 +37,9 @@ field = [[0 for i in range(WIDTH)] for j in range(HEIGHT)]
 
 anim_count, anim_speed, anim_limit = 0, 60, 2000
 shape = deepcopy(choice(shapes))
+
+background = pygame.image.load("img/bg.jpg").convert()
+game_background = pygame.image.load("img/game_bg.jpg").convert()
 
 ########## HELPER FUNCTIONS START ##########
 
@@ -59,7 +64,9 @@ def out_of_bounds():
 ########## DRIVER CODE ##########
 while True:
     dx, rotate = 0, False
-    game_screen.fill(pygame.Color("Black"))
+    sc.blit(background, (0, 0))
+    sc.blit(game_screen, (20, 20))
+    game_screen.blit(game_background, (0, 0))
 
     # EVENT HANDLER
     for event in pygame.event.get():
