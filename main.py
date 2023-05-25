@@ -36,6 +36,28 @@ def get_random_color():
     - Random color code 3-tuple
     """
     return (randrange(30, 256), randrange(30, 256), randrange(30, 256))
+
+
+def get_high_score():
+    """
+    Gets high score by reading it from file on record.
+    """
+    try:
+        with open("high_score") as f:
+            return f.readline()
+    except FileNotFoundError:
+        with open("high_score", "w") as f:
+            f.write("0")
+
+
+def set_high_score(high_score, score):
+    """
+    Sets high score by writing to file on record.
+    """
+    hs = max(int(high_score), score)
+    with open("high_score", "w") as f:
+        f.write(str(hs))
+
 ########## HELPER FUNCTIONS END ##########
 
 
@@ -85,6 +107,7 @@ font = pygame.font.Font("font/font.ttf", 50)
 # Sidebar texts
 tetris_title = main_font.render("TETRIS", True, pygame.Color("orange"))
 score_title = font.render("SCORE", True, pygame.Color("green"))
+high_score_title = font.render("HIGH SCORE", True, pygame.Color("purple"))
 
 # Score vars and scheme
 score, lines = 0, 0
@@ -99,6 +122,7 @@ while True:
     sc.blit(background, (0, 0))
     sc.blit(game_screen, (20, 20))
     game_screen.blit(game_background, (0, 0))
+    high_score = get_high_score()
 
     # Slight delay for full lines
     for i in range(lines):
@@ -201,6 +225,19 @@ while True:
     sc.blit(tetris_title, (485, 20))
     sc.blit(score_title, (510, 760))
     sc.blit(font.render(str(score), True, pygame.Color("white")), (510, 840))
+
+    # Game over handling - clear grid and reset params
+    for i in range(WIDTH):
+        if field[0][i]:
+            set_high_score(high_score, score)
+            field = [[0 for i in range(WIDTH)] for i in range(HEIGHT)]
+            anim_count, anim_speed, anim_limit = 0, 60, 2000
+            score = 0
+            for i_shape in grid:
+                pygame.draw.rect(game_screen, get_random_color(), i_shape)
+                sc.blit(game_screen, (20, 20))
+                pygame.display.flip()
+                clock.tick(200)
 
     pygame.display.flip()
     clock.tick(FPS)
