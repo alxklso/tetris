@@ -80,9 +80,16 @@ game_background = pygame.image.load("img/game_bg.jpg").convert()
 
 # Word fonts
 main_font = pygame.font.Font("font/font.ttf", 65)
-font = pygame.font.Font("font/font.ttf", 65)
+font = pygame.font.Font("font/font.ttf", 50)
 
+# Sidebar texts
 tetris_title = main_font.render("TETRIS", True, pygame.Color("orange"))
+score_title = font.render("SCORE", True, pygame.Color("green"))
+
+# Score vars and scheme
+score, lines = 0, 0
+score_scheme = {0: 0, 1: 100, 2: 300, 3: 700, 4: 1500}
+
 ########## GAME SETUP STOP ##########
 
 
@@ -92,6 +99,10 @@ while True:
     sc.blit(background, (0, 0))
     sc.blit(game_screen, (20, 20))
     game_screen.blit(game_background, (0, 0))
+
+    # Slight delay for full lines
+    for i in range(lines):
+        pygame.time.wait(200)
 
     # EVENT HANDLER
     for event in pygame.event.get():
@@ -147,7 +158,7 @@ while True:
                 break
 
     # Check filled lines
-    line = HEIGHT - 1
+    line, lines = HEIGHT - 1, 0
     for row in range(HEIGHT - 1, -1, -1):
         count = 0
         for i in range(WIDTH):
@@ -155,9 +166,14 @@ while True:
                 count += 1
 
             field[line][i] = field[row][i]
-
         if count < WIDTH:
             line -= 1
+        else:
+            anim_speed += 3
+            lines += 1
+
+    # Compute score
+    score += score_scheme[lines]
 
     # Draw grid
     [pygame.draw.rect(game_screen, (40, 40, 40), i_rect, 1) for i_rect in grid]
@@ -181,8 +197,10 @@ while True:
         shapes_rect.y = next_shape[i].y * TILE_SIZE + 185
         pygame.draw.rect(sc, next_random_color, shapes_rect)
 
-    # Create TETRIS title on sidebar
+    # Sidebar text
     sc.blit(tetris_title, (485, 20))
+    sc.blit(score_title, (510, 760))
+    sc.blit(font.render(str(score), True, pygame.Color("white")), (510, 840))
 
     pygame.display.flip()
     clock.tick(FPS)
