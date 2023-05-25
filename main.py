@@ -70,12 +70,19 @@ shapes_rect = pygame.Rect(0, 0, TILE_SIZE-2, TILE_SIZE-2)
 field = [[0 for i in range(WIDTH)] for j in range(HEIGHT)]
 
 anim_count, anim_speed, anim_limit = 0, 60, 2000
-shape = deepcopy(choice(shapes))
+shape, next_shape = deepcopy(choice(shapes)), deepcopy(choice(shapes))
+random_color, next_random_color = get_random_color(), get_random_color()
+
 
 # Background images
 background = pygame.image.load("img/bg.jpg").convert()
 game_background = pygame.image.load("img/game_bg.jpg").convert()
-random_color = get_random_color()
+
+# Word fonts
+main_font = pygame.font.Font("font/font.ttf", 65)
+font = pygame.font.Font("font/font.ttf", 65)
+
+tetris_title = main_font.render("TETRIS", True, pygame.Color("orange"))
 ########## GAME SETUP STOP ##########
 
 
@@ -118,8 +125,9 @@ while True:
             if not out_of_bounds():
                 for i in range(4):
                     field[shape_old[i].y][shape_old[i].x] = random_color
-                random_color = get_random_color()
-                shape = deepcopy(choice(shapes))
+                shape, random_color = next_shape, next_random_color
+                next_shape, next_random_color = deepcopy(
+                    choice(shapes)), get_random_color()
                 anim_limit = 2000
                 break
 
@@ -166,6 +174,15 @@ while True:
             if c:
                 shapes_rect.x, shapes_rect.y = x * TILE_SIZE, y * TILE_SIZE
                 pygame.draw.rect(game_screen, c, shapes_rect)
+
+    # Draw next shape
+    for i in range(4):  # All shapes consist of 4 tiles
+        shapes_rect.x = next_shape[i].x * TILE_SIZE + 380
+        shapes_rect.y = next_shape[i].y * TILE_SIZE + 185
+        pygame.draw.rect(sc, next_random_color, shapes_rect)
+
+    # Create TETRIS title on sidebar
+    sc.blit(tetris_title, (485, 20))
 
     pygame.display.flip()
     clock.tick(FPS)
